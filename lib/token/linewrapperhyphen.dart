@@ -169,6 +169,7 @@ class LineWrapperHyphen {
     final partLength = token.parts.length;
     List<WordPartToken> prelist = [];
     List<WordPartToken> postlist = [];
+    bool success = false;
 
     for (int i = partLength; i > 0; i--) {
       prelist = token.parts.sublist(0, i);
@@ -178,18 +179,19 @@ class LineWrapperHyphen {
         line.addAll([...prelist]); // add all word parts
         prelist.clear();
         postlist.clear();
+        success = true;
         break;
       } else if (_canAddHyphenlast(prelist, line)) {
         line.addAll(_doHyphenLast(prelist));
         _lines.add(_cloneLineAndAddNewline(line));
         line.clear();
-        line.addAll(postlist);
+        success = _tryAddWordToLine(WordToken(postlist), line);
         prelist.clear();
         postlist.clear();
         break;
       }
     }
-    return prelist.isEmpty && postlist.isEmpty;
+    return success;
   }
 
   List<TextPartToken> _cloneLineAndAddNewline(List<TextPartToken> line) {
